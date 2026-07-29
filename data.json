@@ -1,0 +1,38 @@
+{
+  "updated": "2026-07-29T06:54:30.225Z",
+  "notStarted": 14,
+  "paused": 0,
+  "started": 3,
+  "breakdown": [
+    {
+      "name": "General Tasks",
+      "notStarted": 4,
+      "paused": 0,
+      "started": 0
+    },
+    {
+      "name": "Google Ads",
+      "notStarted": 4,
+      "paused": 0,
+      "started": 0
+    },
+    {
+      "name": "Shopee",
+      "notStarted": 2,
+      "paused": 0,
+      "started": 3
+    },
+    {
+      "name": "DKI Content",
+      "notStarted": 1,
+      "paused": 0,
+      "started": 0
+    },
+    {
+      "name": "DIPA Content",
+      "notStarted": 3,
+      "paused": 0,
+      "started": 0
+    }
+  ]
+}
