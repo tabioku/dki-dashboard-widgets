@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DKI Task Status Overview</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #191919;
+    margin: 0;
+    padding: 24px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #191919;
+  }
+  .updated {
+    font-size: 11px;
+    color: #9b9a97;
+  }
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    flex: 1;
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .stat-num {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #6b6b68;
+    margin-top: 4px;
+  }
+  .not-started .stat-num { color: #D6232C; }
+  .paused .stat-num { color: #E9A23B; }
+  .started .stat-num { color: #1171AE; }
+
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+  }
+
+  .breakdown {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #6b6b68;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-top: 1px solid #ececea;
+  }
+  .error-banner {
+    background: #fdecea;
+    color: #a32d2d;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>DKI — Task Status Overview</h1>
+    <span class="updated" id="updated-label">Loading…</span>
+  </div>
+
+  <div class="error-banner" id="error-banner">
+    Couldn't load live data — showing last known snapshot, or check that data.json exists.
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card not-started">
+      <div class="stat-num" id="not-started-count">–</div>
+      <div class="stat-label">Not started</div>
+    </div>
+    <div class="stat-card paused">
+      <div class="stat-num" id="paused-count">–</div>
+      <div class="stat-label">Paused</div>
+    </div>
+    <div class="stat-card started">
+      <div class="stat-num" id="started-count">–</div>
+      <div class="stat-label">Started</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="statusChart" role="img" aria-label="Bar chart showing combined task counts by status across General Tasks, Google Ads, Shopee, DKI Content, and DIPA Content">
+    </canvas>
+  </div>
+
+  <div class="breakdown" id="breakdown-list"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  async function loadData() {
+    try {
+      const res = await fetch('./data.json?t=' + Date.now());
+      if (!res.ok) throw new Error('data.json not found');
+      return await res.json();
+    } catch (err) {
+      document.getElementById('error-banner').style.display = 'block';
+      return { notStarted: 0, paused: 0, started: 0, updated: null, breakdown: [] };
+    }
+  }
+
+  function renderBreakdown(breakdown) {
+    const container = document.getElementById('breakdown-list');
+    container.innerHTML = '';
+    breakdown.forEach(item => {
+      const parts = [];
+      if (item.notStarted) parts.push(item.notStarted + ' not started');
+      if (item.paused) parts.push(item.paused + ' paused');
+      if (item.started) parts.push(item.started + ' started');
+      const row = document.createElement('div');
+      row.className = 'breakdown-row';
+      row.innerHTML = `<span>${item.name}</span><span>${parts.join(' · ') || '—'}</span>`;
+      container.appendChild(row);
+    });
+  }
+
+  loadData().then(data => {
+    document.getElementById('not-started-count').textContent = data.notStarted;
+    document.getElementById('paused-count').textContent = data.paused;
+    document.getElementById('started-count').textContent = data.started;
+
+    document.getElementById('updated-label').textContent = data.updated
+      ? 'Updated ' + new Date(data.updated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+      : 'No data yet';
+
+    renderBreakdown(data.breakdown || []);
+
+    new Chart(document.getElementById('statusChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Not started', 'Paused', 'Started'],
+        datasets: [{
+          data: [data.notStarted, data.paused, data.started],
+          backgroundColor: ['#D6232C', '#E9A23B', '#1171AE'],
+          borderRadius: 4,
+          barThickness: 48
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#ececea' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
