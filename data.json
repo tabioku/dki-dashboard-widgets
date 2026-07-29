@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-29T06:54:30.225Z",
-  "notStarted": 14,
-  "paused": 0,
-  "started": 3,
+  "updated": "2026-07-29T13:43:28.739Z",
+  "notStarted": 13,
+  "paused": 2,
+  "started": 2,
   "breakdown": [
     {
       "name": "General Tasks",
@@ -18,9 +18,9 @@
     },
     {
       "name": "Shopee",
-      "notStarted": 2,
-      "paused": 0,
-      "started": 3
+      "notStarted": 1,
+      "paused": 2,
+      "started": 2
     },
     {
       "name": "DKI Content",
